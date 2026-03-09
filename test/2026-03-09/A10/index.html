@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../lib/lib.css">
+  <style>
+    .box {width: 400px;height: 400px;background-color: red; animation: ani 4s infinite;}
+    @keyframes ani {
+      0%, 100% {clip-path: polygon(50% 0, 50% 0, 100% 100%, 100% 100%, 0 100%, 0 100%);}
+      25% {clip-path: polygon(0 0, 100% 0, 100% 50%, 100% 100%, 0 100%, 0 50%);}
+      50% {clip-path: polygon(50% 0, 50% 0, 100% 30%, 70% 100%, 30% 100%, 0 30%);}
+      75% {clip-path: polygon(30% 0, 70% 0, 100% 50%, 70% 100%, 30% 100%, 0 50%);}
+    }
+  </style>
+</head>
+<body class="center">
+  <div class="box"></div>
+</body>
+</html>

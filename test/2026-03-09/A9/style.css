@@ -1,0 +1,19 @@
+img {width: 400px;height: 500px;}
+body {background-image: url(./images/background.png);}
+.slide {width: 100%;height: 100vh;overflow: hidden;}
+ul {transition: .5s; width: 300vw;height: 100%;display: flex;align-items: center;}
+li {width: 100vw;height: 100vh;display: flex;justify-content: center;align-items: center;gap: 50px;}
+.card {display: flex;flex-direction: column;gap: 10px;}
+.card * {color: white;}
+
+.nav {cursor: pointer;display: none;font-size: 20px;border: 1px solid white;background-color: rgba(255, 255, 255, 0.13);color: white;width: 50px;height: 50px;position: absolute;justify-content: center;align-items: center;}
+.prev {left: 48%;bottom: 40px;}
+.next {left: 53%;bottom: 40px;}
+
+#s1:checked ~ .slide > ul {transform: translate(0);}
+#s2:checked ~ .slide > ul {transform: translate(-100vw);}
+#s3:checked ~ .slide > ul {transform: translate(-200vw);}
+
+#s1:checked ~ .slide > .p1, #s1:checked ~ .slide > .n1 {display: flex;}
+#s2:checked ~ .slide > .p2, #s2:checked ~ .slide > .n2 {display: flex;}
+#s3:checked ~ .slide > .p3, #s3:checked ~ .slide > .n3 {display: flex;}

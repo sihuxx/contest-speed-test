@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../lib/lib.css">
+  <style>
+    #canvas {border: 1px solid black;}
+  </style>
+</head>
+<body class="center">
+  <canvas id="canvas" width="400px" height="200px"></canvas>
+  <div>
+    <button id="clearBtn">지우기</button>
+    <button id="saveBtn">저장</button>
+  </div>
+</body>
+<script>
+  const ctx = canvas.getContext("2d")
+  let painting
+
+  function start() {
+    painting = true
+    ctx.beginPath()
+  }
+  function stop() {
+    painting = false
+  } 
+  function move(e) {
+    const x =  e.offsetX
+    const y =  e.offsetY
+    if(!painting) {
+      ctx.moveTo(x, y)
+    } else {
+      ctx.lineTo(x, y)
+      ctx.stroke()
+    }
+  }
+
+  saveBtn.addEventListener("click", () => {
+    const a = document.createElement("a")
+    a.href = canvas.toDataURL("image/png")
+    a.download = "image.png"
+    a.click()
+  })
+  clearBtn.addEventListener("click", () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+  })
+
+  canvas.addEventListener("mousemove", move)
+  canvas.addEventListener("mousedown", start)
+  canvas.addEventListener("mouseleave", stop)
+  canvas.addEventListener("mouseup", stop)
+</script>
+</html>

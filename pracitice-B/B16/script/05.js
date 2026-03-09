@@ -23,7 +23,6 @@ $("#pendingCount").textContent = services["진행중"]().length
 
 filterBtns.forEach(btn => btn.addEventListener("click", () => {
   state.activeFilter = btn.textContent
-  render()
 }))
 
 function render() {
