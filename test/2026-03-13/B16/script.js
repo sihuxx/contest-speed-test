@@ -1,0 +1,58 @@
+const $ = (e) => document.querySelector(e)
+const $$ =(e) => [...document.querySelectorAll(e)]
+const newEl = (e, n) => Object.assign(document.createElement(e), n)
+
+const { todos } = await fetch("./todos.json").then(res => res.json())
+
+const services = {
+  "전체": () => todos,
+  "완료": () => todos.filter(todo => todo.completed),
+  "진행중": () => todos.filter(todo => !todo.completed),
+  "높은 우선순위": () => todos.filter(todo => !todo.priority),
+}
+const priority = {
+  "high": { class: "priority-high", text: "높음" },
+  "medium": { class: "priority-medium", text: "보통" },
+  "low": { class: "priority-low", text: "낮음" },
+}
+let state = { activeFilter: "전체" }
+
+const filterBtn = $$(".filter-btn")
+const todoList = $("#todoList")
+
+filterBtn.forEach(btn => btn.addEventListener("click", () => {
+  state.activeFilter = btn.textContent
+  render()
+}))
+
+$("#totalCount").textContent = services["전체"].length
+$("#completedCount").textContent = services["완료"].length
+$("#pendingCount").textContent = services["진행중"].length
+
+function render() {
+  todoList.innerHTML = ""
+  filterBtn.forEach(btn => btn.classList.toggle("active", btn.textContent === state.activeFilter))
+  const todoItem = services[state.activeFilter]().map(todo =>
+    newEl("div", {
+      className: `todo-item ${todo.completed ? "completed" : ""}`,
+      innerHTML: `
+         <div class="todo-header">
+            <h3 class="todo-title">${todo.title}</h3>
+            <div class="todo-badges">
+                <span class="badge ${priority[todo.priority].class}">${priority[todo.priority].text}</span>
+                <span class="badge status-badge">완료</span>
+            </div>
+        </div>
+        <p class="todo-description">${todo.description}</p>
+        <div class="todo-footer">
+            <div class="date-info">
+                <span>📅 마감: ${todo.dueDate}</span>
+                <span>📝 생성: ${todo.createdAt}</span>
+            </div>
+        </div>
+      `
+    })
+  )
+  todoList.append(...todoItem)
+}
+render()
