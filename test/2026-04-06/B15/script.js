@@ -1,0 +1,42 @@
+let state = { page : 1, limit:10 }
+const datas = await fetch("./sample-data.csv").then(res => res.text())
+const rows = datas.split("\n").slice(1).map(line => `<tr>${line.split(",").map(ceil => `<td>${ceil}</td>`).join("")}</tr>`)
+
+const tbody = $("tbody")
+const prevbtn = $(".prev-btn")
+const nextbtn = $(".next-btn")
+const pageBtns = $$(".pagination-btn")
+
+function setState(newState) {
+  state = {...state, ...newState}
+  render()
+}
+pageBtns.forEach(btn => btn.addEventListener("click", () => {
+  setState({ page: Number(btn.textContent) })
+}))
+prevbtn.addEventListener("click", () => {
+  setState({ page: state.page - 1 })
+})
+nextbtn.addEventListener("click", () => {
+  setState({ page: state.page + 1 })
+})
+
+function render() {
+  const range = state.limit * (state.page - 1)
+  tbody.innerHTML = rows.slice(range, range + state.limit).join("")
+  prevbtn.disabled = state.page === 1
+  nextbtn.disabled = state.page === 5
+
+  pageBtns.forEach((btn, i) => {
+    btn.classList.remove('active')
+    btn.classList.remove('page-info')
+    btn.textContent = i + 1
+
+    if(state.page === i +1) btn.classList.add('active')
+    if(state.page === 1 && i === 4 || state.page=== 5 && i === 1) {
+      btn.classList.add("page-info")
+      btn.textContent = "..."
+    }
+  })
+}
+render()
