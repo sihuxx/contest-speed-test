@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>3D Carousel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#2d3a4a;overflow:hidden}
+.scene{width:300px;height:200px;perspective:1000px;perspective-origin:50% 50%}
+.carousel{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:spin 18s linear infinite}
+.carousel:hover{animation-play-state:paused}
+@keyframes spin{from{transform:rotateY(0)}to{transform:rotateY(-360deg)}}
+.item{position:absolute;inset:0;width:220px;height:130px;left:50%;top:50%;margin:-92px 0 0 -140px;border:4px solid #fff;border-radius:2px;overflow:hidden;cursor:pointer;transform-style:preserve-3d}
+.item:nth-child(1){transform:rotateY(0deg) translateZ(450px)}
+.item:nth-child(2){transform:rotateY(30deg) translateZ(450px)}
+.item:nth-child(3){transform:rotateY(60deg) translateZ(450px)}
+.item:nth-child(4){transform:rotateY(90deg) translateZ(450px)}
+.item:nth-child(5){transform:rotateY(120deg) translateZ(450px)}
+.item:nth-child(6){transform:rotateY(150deg) translateZ(450px)}
+.item:nth-child(7){transform:rotateY(180deg) translateZ(450px)}
+.item:nth-child(8){transform:rotateY(210deg) translateZ(450px)}
+.item:nth-child(9){transform:rotateY(240deg) translateZ(450px)}
+.item:nth-child(10){transform:rotateY(270deg) translateZ(450px)}
+.item:nth-child(11){transform:rotateY(300deg) translateZ(450px)}
+.item:nth-child(12){transform:rotateY(330deg) translateZ(450px)}
+.item img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .3s}
+.item::after{content:attr(data-label);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-family:sans-serif;letter-spacing:.05em;background:rgba(0,0,0,0);transition:background .3s;pointer-events:none}
+.item:hover img{filter:brightness(.45)}
+.item:hover::after{background:rgba(0,0,0,.35)}
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="carousel">
+    <div class="item" data-label="image1"><img src="images/image1.jpg" alt="image1"></div>
+    <div class="item" data-label="image2"><img src="images/image2.jpg" alt="image2"></div>
+    <div class="item" data-label="image3"><img src="images/image3.jpg" alt="image3"></div>
+    <div class="item" data-label="image4"><img src="images/image4.jpg" alt="image4"></div>
+    <div class="item" data-label="image5"><img src="images/image5.jpg" alt="image5"></div>
+    <div class="item" data-label="image6"><img src="images/image6.jpg" alt="image6"></div>
+    <div class="item" data-label="image7"><img src="images/image7.jpg" alt="image7"></div>
+    <div class="item" data-label="image8"><img src="images/image8.jpg" alt="image8"></div>
+    <div class="item" data-label="image9"><img src="images/image9.jpg" alt="image9"></div>
+    <div class="item" data-label="image10"><img src="images/image10.jpg" alt="image10"></div>
+    <div class="item" data-label="image11"><img src="images/image11.jpg" alt="image11"></div>
+    <div class="item" data-label="image12"><img src="images/image12.jpg" alt="image12"></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Flip Book Carousel</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#2e3440}
+
+  input[type=radio]{display:none}
+
+  /* 골드 액자 */
+  .frame{padding:18px;background:#c9a227;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+
+  /* 뷰포트 */
+  .vp{
+    width:920px;height:680px;
+    position:relative;overflow:hidden;
+    perspective:1400px;background:#111;
+  }
+
+  /* 슬라이드: 기본 오른쪽에서 대기 */
+  .slide{
+    position:absolute;inset:0;
+    transform:rotateY(90deg);
+    transform-origin:left center;
+    opacity:0;
+    transition:transform .65s cubic-bezier(.4,0,.2,1), opacity .45s ease;
+    z-index:0;
+    pointer-events:none;
+  }
+  .slide img{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* 활성 슬라이드 */
+  #s1:checked ~ .frame .vp .sl1,
+  #s2:checked ~ .frame .vp .sl2,
+  #s3:checked ~ .frame .vp .sl3,
+  #s4:checked ~ .frame .vp .sl4,
+  #s5:checked ~ .frame .vp .sl5{
+    transform:rotateY(0deg);
+    opacity:1;
+    z-index:3;
+    pointer-events:auto;
+  }
+
+  /* 버튼 공통 */
+  .nav{
+    position:absolute;bottom:48px;left:50%;
+    transform:translateX(-50%);
+    display:none; /* 기본 숨김 */
+    gap:180px;z-index:10;
+    width:max-content;
+  }
+  .nav label{
+    width:50px;height:50px;
+    background:rgba(25,25,25,.78);
+    border-radius:4px;color:#fff;
+    font-size:1.5rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(4px);
+    transition:background .2s;
+    user-select:none;
+  }
+  .nav label:hover{background:rgba(70,70,70,.92)}
+
+  /* 각 슬라이드 활성 시 해당 nav만 보임 */
+  #s1:checked ~ .frame .vp .nav1,
+  #s2:checked ~ .frame .vp .nav2,
+  #s3:checked ~ .frame .vp .nav3,
+  #s4:checked ~ .frame .vp .nav4,
+  #s5:checked ~ .frame .vp .nav5{display:flex}
+</style>
+</head>
+<body>
+
+<input type="radio" name="sl" id="s1" checked>
+<input type="radio" name="sl" id="s2">
+<input type="radio" name="sl" id="s3">
+<input type="radio" name="sl" id="s4">
+<input type="radio" name="sl" id="s5">
+
+<div class="frame">
+  <div class="vp">
+
+    <!-- 슬라이드 5장 -->
+    <div class="slide sl1"><img src="images/abu-dhabi.jpg" alt="1"></div>
+    <div class="slide sl2"><img src="images/kazan.jpg" alt="2"></div>
+    <div class="slide sl3"><img src="images/lyon.jpg" alt="3"></div>
+    <div class="slide sl4"><img src="images/sao-paulo.jpg" alt="4"></div>
+    <div class="slide sl5"><img src="images/shanghai.jpg" alt="5"></div>
+
+    <!-- 슬라이드별 이전/다음 버튼 세트 -->
+    <div class="nav nav1">
+      <label for="s5">&#8249;</label>
+      <label for="s2">&#8250;</label>
+    </div>
+    <div class="nav nav2">
+      <label for="s1">&#8249;</label>
+      <label for="s3">&#8250;</label>
+    </div>
+    <div class="nav nav3">
+      <label for="s2">&#8249;</label>
+      <label for="s4">&#8250;</label>
+    </div>
+    <div class="nav nav4">
+      <label for="s3">&#8249;</label>
+      <label for="s5">&#8250;</label>
+    </div>
+    <div class="nav nav5">
+      <label for="s4">&#8249;</label>
+      <label for="s1">&#8250;</label>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
