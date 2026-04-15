@@ -4,71 +4,207 @@
 <meta charset="UTF-8">
 <title>Flip Book Carousel</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#2e3440}
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  input[type=radio]{display:none}
-
-  /* 골드 액자 */
-  .frame{padding:18px;background:#c9a227;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
-
-  /* 뷰포트 */
-  .vp{
-    width:920px;height:680px;
-    position:relative;overflow:hidden;
-    perspective:1400px;background:#111;
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2e3440;
   }
 
-  /* 슬라이드: 기본 오른쪽에서 대기 */
-  .slide{
-    position:absolute;inset:0;
-    transform:rotateY(90deg);
-    transform-origin:left center;
-    opacity:0;
-    transition:transform .65s cubic-bezier(.4,0,.2,1), opacity .45s ease;
-    z-index:0;
-    pointer-events:none;
-  }
-  .slide img{width:100%;height:100%;object-fit:cover;display:block}
+  input[type=radio] { display: none; }
 
-  /* 활성 슬라이드 */
-  #s1:checked ~ .frame .vp .sl1,
-  #s2:checked ~ .frame .vp .sl2,
-  #s3:checked ~ .frame .vp .sl3,
-  #s4:checked ~ .frame .vp .sl4,
-  #s5:checked ~ .frame .vp .sl5{
-    transform:rotateY(0deg);
-    opacity:1;
-    z-index:3;
-    pointer-events:auto;
+  /* ── 골드 액자 ── */
+  .frame {
+    padding: 18px;
+    background: #c9a227;
+    border-radius: 4px;
+    box-shadow: 0 8px 48px rgba(0,0,0,.7);
   }
 
-  /* 버튼 공통 */
-  .nav{
-    position:absolute;bottom:48px;left:50%;
-    transform:translateX(-50%);
-    display:none; /* 기본 숨김 */
-    gap:180px;z-index:10;
-    width:max-content;
+  /* ── 뷰포트 ── */
+  .vp {
+    width: 920px;
+    height: 680px;
+    position: relative;
+    perspective: 1200px;
+    perspective-origin: 50% 50%;
+    overflow: visible;
   }
-  .nav label{
-    width:50px;height:50px;
-    background:rgba(25,25,25,.78);
-    border-radius:4px;color:#fff;
-    font-size:1.5rem;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    backdrop-filter:blur(4px);
-    transition:background .2s;
-    user-select:none;
-  }
-  .nav label:hover{background:rgba(70,70,70,.92)}
 
-  /* 각 슬라이드 활성 시 해당 nav만 보임 */
+  /* ── 공통 슬라이드 레이어 ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .slide img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /*
+  ══════════════════════════════════════
+  구조:
+  · .bg-layer  : 항상 뒤에 깔린 레이어 (z-index 1)
+                 현재 활성 이미지 표시
+  · .fg-layer  : 항상 앞에 있는 레이어 (z-index 2)
+                 접히는 페이지 = 이전 이미지
+                 transform-origin: left center
+                 rotateY: 0deg(펼침) → -100deg(접힘)
+
+  각 슬라이드는 .page-N 으로 명명
+  s1:checked → page-1 active
+  s2:checked → page-2 active
+  ...
+
+  page-N이 active일 때:
+    · bg-layer에 N번 이미지 표시
+    · fg-layer에 N번 이미지를 rotateY(0deg) → 펼쳐진 상태
+
+  page-N+1이 active가 되면:
+    · 이전 page-N의 fg가 rotateY(-100deg)로 접힘
+    · bg-layer는 이미 N+1 이미지를 깔고 있음
+
+  ★ 핵심: display 전환 없이 opacity+transform만 사용
+  ══════════════════════════════════════
+  */
+
+  /* ── BG 레이어: 항상 표시, z-index 낮음 ── */
+  .bg-layer {
+    z-index: 1;
+  }
+
+  /* ── FG 레이어: z-index 높음, 접히는 페이지 ── */
+  .fg-layer {
+    z-index: 2;
+    transform-origin: left center;
+    transform: rotateY(0deg);
+    transition: transform .8s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: -8px 0 32px rgba(0,0,0,.4);
+  }
+
+  /* ══ 각 페이지 기본: bg/fg 모두 숨김 ══ */
+  .page { position: absolute; inset: 0; pointer-events: none; }
+
+  /* bg는 항상 뒤에 깔림 (visibility로 제어해 transition 보장) */
+  .page .bg-layer { visibility: hidden; }
+  .page .fg-layer {
+    opacity: 0;
+    transform: rotateY(-100deg); /* 기본: 접힌 상태 */
+    pointer-events: none;
+  }
+
+  /* ══════════════════════════════
+     s1 체크 → page-1 활성
+     · bg: img1 표시
+     · fg: img1, rotateY(0deg) 펼침
+  ══════════════════════════════ */
+
+  /* 활성 페이지: bg 표시 */
+  #s1:checked ~ .frame .vp .page-1 .bg-layer,
+  #s2:checked ~ .frame .vp .page-2 .bg-layer,
+  #s3:checked ~ .frame .vp .page-3 .bg-layer,
+  #s4:checked ~ .frame .vp .page-4 .bg-layer,
+  #s5:checked ~ .frame .vp .page-5 .bg-layer {
+    visibility: visible;
+    z-index: 1;
+  }
+
+  /* 활성 페이지: fg 펼침 */
+  #s1:checked ~ .frame .vp .page-1 .fg-layer,
+  #s2:checked ~ .frame .vp .page-2 .fg-layer,
+  #s3:checked ~ .frame .vp .page-3 .fg-layer,
+  #s4:checked ~ .frame .vp .page-4 .fg-layer,
+  #s5:checked ~ .frame .vp .page-5 .fg-layer {
+    opacity: 1;
+    transform: rotateY(0deg);
+    pointer-events: auto;
+  }
+
+  /* ══ 전환 애니메이션:
+     sN+1이 체크되면 → 이전 page-N의 fg가 접힘
+     동시에 page-N+1의 bg가 뒤에 보임 (이미 bg-layer visibility:visible로 처리됨)
+  ══ */
+
+  /* s2 체크 → page-1 fg 접힘, page-2 bg가 뒤에 */
+  #s2:checked ~ .frame .vp .page-1 .bg-layer { visibility: visible; z-index: 3; }
+  #s2:checked ~ .frame .vp .page-1 .fg-layer {
+    opacity: 1;
+    transform: rotateY(-100deg);
+    z-index: 4;
+  }
+  #s2:checked ~ .frame .vp .page-2 .bg-layer { z-index: 2; }
+
+  /* s3 체크 → page-2 fg 접힘 */
+  #s3:checked ~ .frame .vp .page-2 .bg-layer { visibility: visible; z-index: 3; }
+  #s3:checked ~ .frame .vp .page-2 .fg-layer {
+    opacity: 1;
+    transform: rotateY(-100deg);
+    z-index: 4;
+  }
+  #s3:checked ~ .frame .vp .page-3 .bg-layer { z-index: 2; }
+
+  /* s4 체크 → page-3 fg 접힘 */
+  #s4:checked ~ .frame .vp .page-3 .bg-layer { visibility: visible; z-index: 3; }
+  #s4:checked ~ .frame .vp .page-3 .fg-layer {
+    opacity: 1;
+    transform: rotateY(-100deg);
+    z-index: 4;
+  }
+  #s4:checked ~ .frame .vp .page-4 .bg-layer { z-index: 2; }
+
+  /* s5 체크 → page-4 fg 접힘 */
+  #s5:checked ~ .frame .vp .page-4 .bg-layer { visibility: visible; z-index: 3; }
+  #s5:checked ~ .frame .vp .page-4 .fg-layer {
+    opacity: 1;
+    transform: rotateY(-100deg);
+    z-index: 4;
+  }
+  #s5:checked ~ .frame .vp .page-5 .bg-layer { z-index: 2; }
+
+  /* s1 체크 (순환) → page-5 fg 접힘 */
+  #s1:checked ~ .frame .vp .page-5 .bg-layer { visibility: visible; z-index: 3; }
+  #s1:checked ~ .frame .vp .page-5 .fg-layer {
+    opacity: 1;
+    transform: rotateY(-100deg);
+    z-index: 4;
+  }
+
+  /* ══ 버튼 ══ */
+  .nav {
+    position: absolute;
+    bottom: 40px; left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    gap: 200px;
+    z-index: 30;
+    pointer-events: auto;
+  }
+  .nav label {
+    width: 52px; height: 52px;
+    background: rgba(20,20,20,.76);
+    border-radius: 4px;
+    color: #fff; font-size: 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: background .2s;
+    user-select: none;
+    pointer-events: auto;
+  }
+  .nav label:hover { background: rgba(80,80,80,.92); }
+
   #s1:checked ~ .frame .vp .nav1,
   #s2:checked ~ .frame .vp .nav2,
   #s3:checked ~ .frame .vp .nav3,
   #s4:checked ~ .frame .vp .nav4,
-  #s5:checked ~ .frame .vp .nav5{display:flex}
+  #s5:checked ~ .frame .vp .nav5 { display: flex; }
 </style>
 </head>
 <body>
@@ -82,14 +218,41 @@
 <div class="frame">
   <div class="vp">
 
-    <!-- 슬라이드 5장 -->
-    <div class="slide sl1"><img src="images/abu-dhabi.jpg" alt="1"></div>
-    <div class="slide sl2"><img src="images/kazan.jpg" alt="2"></div>
-    <div class="slide sl3"><img src="images/lyon.jpg" alt="3"></div>
-    <div class="slide sl4"><img src="images/sao-paulo.jpg" alt="4"></div>
-    <div class="slide sl5"><img src="images/shanghai.jpg" alt="5"></div>
+    <!--
+      page-N:
+        bg-layer = 이 페이지의 이미지 (뒤에 깔림)
+        fg-layer = 이 페이지의 이미지 (앞에서 접힘)
+      → 활성 시 fg가 펼쳐져 있고
+        다음 페이지로 이동 시 fg가 rotateY(-100deg)로 접히면서
+        뒤에 있던 다음 페이지의 bg가 드러남
+    -->
 
-    <!-- 슬라이드별 이전/다음 버튼 세트 -->
+    <div class="page page-1">
+      <div class="slide bg-layer"><img src="images/abu-dhabi.jpg" alt="1"></div>
+      <div class="slide fg-layer"><img src="images/abu-dhabi.jpg" alt="1"></div>
+    </div>
+
+    <div class="page page-2">
+      <div class="slide bg-layer"><img src="images/kazan.jpg" alt="2"></div>
+      <div class="slide fg-layer"><img src="images/kazan.jpg" alt="2"></div>
+    </div>
+
+    <div class="page page-3">
+      <div class="slide bg-layer"><img src="images/lyon.jpg" alt="3"></div>
+      <div class="slide fg-layer"><img src="images/lyon.jpg" alt="3"></div>
+    </div>
+
+    <div class="page page-4">
+      <div class="slide bg-layer"><img src="images/sao-paulo.jpg" alt="4"></div>
+      <div class="slide fg-layer"><img src="images/sao-paulo.jpg" alt="4"></div>
+    </div>
+
+    <div class="page page-5">
+      <div class="slide bg-layer"><img src="images/shanghai.jpg" alt="5"></div>
+      <div class="slide fg-layer"><img src="images/shanghai.jpg" alt="5"></div>
+    </div>
+
+    <!-- 버튼 세트 -->
     <div class="nav nav1">
       <label for="s5">&#8249;</label>
       <label for="s2">&#8250;</label>
